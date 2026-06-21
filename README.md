@@ -6,7 +6,7 @@ Crop Disease Detector is a deep learning-based computer vision project that clas
 
 A custom Convolutional Neural Network (CNN) was built using PyTorch and trained on a dataset containing 20,638 images.
 
-The final model achieved a test accuracy of **91.86%** after applying data augmentation and training for 10 epochs.
+The best model achieved a test accuracy of **92.42%** after applying data augmentation, input normalization, and training for 10 epochs.
 
 ---
 
@@ -72,7 +72,8 @@ Total Parameters: **1,821,263**
 |---|---|---|
 | Baseline CNN | No augmentation, 5 epochs | 89.78% |
 | Augmented CNN | Flip + Rotation + ColorJitter, 5 epochs | 86.12% |
-| Improved CNN ⭐ | Same augmentation, 10 epochs | **91.86%** |
+| Augmented CNN | Flip + Rotation + ColorJitter, 10 epochs | 91.86% |
+| Normalized CNN ⭐ | Augmentation + Normalize + 10 epochs | **92.42%** |
 
 ---
 
@@ -127,21 +128,26 @@ For GPU support, install the CUDA-compatible PyTorch version separately.
 
 Final Model Accuracy:
 
-**91.86%**
+**92.42%**
 
 Key improvements:
 
-- Class 0: 79.31% → 96.10%
-- Class 4: 82.76% → 96.43%
-- Class 10: 80.75% → 92.24%
+- Overall accuracy improved from 91.86% → 92.42%
+- Class 6 improved from 63.72% → 74.03%
+- Better performance on difficult disease categories after normalization
 
 The project demonstrates how proper experimentation with data augmentation and training strategies can significantly improve CNN performance.
 
 ---
 
+## Saved Models
+
+- baseline_89_78.pth
+- best_91_86.pth
+- best_normalized_92_42.pth ⭐
+
 ## Future Improvements
 
-- Add Batch Normalization
 - Add Dropout
 - Replace the custom CNN with ResNet/EfficientNet
 - Build a Flask/FastAPI web application
