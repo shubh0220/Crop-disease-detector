@@ -95,7 +95,7 @@ The model performed worse than the baseline because the augmentation made the tr
 
 ---
 
-# Experiment 3: CNN with Data Augmentation (10 Epochs) ⭐ Best Model
+# Experiment 3: CNN with Data Augmentation (10 Epochs)
 
 
 ## Data Augmentation
@@ -144,7 +144,7 @@ The model performed worse than the baseline because the augmentation made the tr
 
 ---
 
-# Experiment 4: CNN with Data Augmentation + Normalization (10 Epochs) ⭐ New Best Model
+# Experiment 4: CNN with Data Augmentation + Normalization (10 Epochs) 
 
 
 ## Data Augmentation & Preprocessing
@@ -210,7 +210,7 @@ to:
 
 Test Accuracy:
 
-**92.42% ⭐**
+**92.42% ⭐
 
 ---
 
@@ -264,11 +264,225 @@ The best normalized model was saved as:
 ```
 models/best_normalized_92_42.pth
 ```
+---
+
+# Experiment 5: CNN with BatchNorm + Dropout(0.5) + Normalization (10 Epochs) ⭐ Best Model
+
+## Architecture Changes
+
+### Batch Normalization
+
+Added Batch Normalization after each convolution layer:
+
+```
+Conv → BatchNorm → ReLU → MaxPool
+```
+
+### Dropout
+
+Added Dropout before the final classification layer:
+
+```python
+nn.Dropout(0.5)
+```
+
+---
+
+## Training Configuration
+
+- Data Augmentation:
+  - RandomHorizontalFlip()
+  - RandomRotation(20°)
+  - ColorJitter(brightness=0.2, contrast=0.2)
+
+- Input Normalization:
+
+```python
+transforms.Normalize(
+    [0.5, 0.5, 0.5],
+    [0.5, 0.5, 0.5]
+)
+```
+
+- Epochs: 10
+- Batch Size: 32
+- Optimizer: Adam
+- Learning Rate: 0.001
+
+---
+
+## Training Loss
+
+| Epoch | Loss |
+|---|---|
+| 1 | 7.428 |
+| 2 | 1.994 |
+| 3 | 0.787 |
+| 4 | 0.545 |
+| 5 | 0.467 |
+| 6 | 0.418 |
+| 7 | 0.393 |
+| 8 | 0.359 |
+| 9 | 0.325 |
+| 10 | 0.296 |
+
+---
+
+## Result
+
+Test Accuracy:
+
+**92.68% ⭐**
+
+---
+
+## Important Improvements
+
+- Class 6 improved from **74.03% → 79.79%**
+- Class 8 improved from **92.23% → 96.39%**
+- Class 14 achieved **100% accuracy**
+
+---
+
+## Saved Model
+
+```
+models/batchnorm_dropout_0_5_92_68.pth
+```
+
+---
+
+# Experiment 6: CNN with BatchNorm Only (10 Epochs)
+
+## Architecture
+
+```
+Conv → BatchNorm → ReLU → MaxPool
+
+Flatten → Linear
+```
+
+---
+
+## Training Loss
+
+| Epoch | Loss |
+|---|---|
+| 1 | 6.706 |
+| 2 | 1.685 |
+| 3 | 0.714 |
+| 4 | 0.508 |
+| 5 | 0.483 |
+| 6 | 0.428 |
+| 7 | 0.386 |
+| 8 | 0.343 |
+| 9 | 0.311 |
+| 10 | 0.296 |
+
+---
+
+## Result
+
+Test Accuracy:
+
+**90.87%**
+
+---
+
+## Observation
+
+- BatchNorm alone did not improve the model.
+- Removing Dropout reduced the overall performance.
+
+---
+
+## Saved Model
+
+```
+models/batchnorm_only_90_87.pth
+```
+
+---
+
+# Experiment 7: CNN with BatchNorm + Dropout(0.3) + Normalization (10 Epochs)
+
+## Architecture Change
+
+Changed Dropout value:
+
+```python
+nn.Dropout(0.5)
+```
+
+to:
+
+```python
+nn.Dropout(0.3)
+```
+
+---
+
+## Training Loss
+
+| Epoch | Loss |
+|---|---|
+| 1 | 6.936 |
+| 2 | 1.763 |
+| 3 | 0.823 |
+| 4 | 0.512 |
+| 5 | 0.422 |
+| 6 | 0.381 |
+| 7 | 0.340 |
+| 8 | 0.323 |
+| 9 | 0.297 |
+| 10 | 0.277 |
+
+---
+
+## Result
+
+Test Accuracy:
+
+**92.66%**
+
+---
+
+## Observation
+
+- Accuracy was very close to Dropout(0.5).
+- Dropout(0.3) improved Class 4 accuracy significantly.
+- Dropout(0.5) performed better on Class 6 and Class 8.
+
+---
+
+## Saved Model
+
+```
+models/batchnorm_dropout_0_3_92_66.pth
+```
+
+---
+
+# Final Experiment Leaderboard
+
+| Rank | Model | Accuracy |
+|---|---|---|
+| 🥇 | BatchNorm + Dropout(0.5) + Normalization | **92.68%** |
+| 🥈 | BatchNorm + Dropout(0.3) + Normalization | **92.66%** |
+| 🥉 | Augmentation + Normalization | **92.42%** |
+| 4 | Augmentation (10 Epochs) | 91.86% |
+| 5 | BatchNorm Only | 90.87% |
+| 6 | Baseline CNN | 89.78% |
+
+---
+
 ### Final Conclusion
 
 - Data augmentation initially reduced accuracy when trained for only 5 epochs.
 - Increasing the training duration to 10 epochs allowed the model to better learn from augmented images and improved the test accuracy to **91.86%**.
-- Adding input normalization further stabilized training by centering pixel values around zero.
-- The normalized model achieved the best performance with a test accuracy of **92.42%**.
-- The most significant improvement was observed in difficult classes, especially **Class 6**, which improved from **63.72% to 74.03%**.
-- The final best model was saved as `models/best_normalized_92_42.pth`.
+- Adding input normalization further stabilized training by centering pixel values around zero, increasing the accuracy to **92.42%**.
+- Adding Batch Normalization alone did not improve the model and reduced the accuracy to **90.87%**.
+- Combining Batch Normalization with Dropout significantly improved the model's generalization ability.
+- Dropout tuning showed that **Dropout(0.5)** performed slightly better than **Dropout(0.3)**, achieving the highest test accuracy of **92.68%**.
+- The best model achieved strong performance across most disease classes, with major improvements in difficult classes such as **Class 6**, which reached **79.79%** accuracy.
+- The final best model was saved as `models/batchnorm_dropout_0_5_92_68.pth`.

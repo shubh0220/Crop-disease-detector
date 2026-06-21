@@ -4,9 +4,11 @@
 
 Crop Disease Detector is a deep learning-based computer vision project that classifies crop leaf images into 15 different disease categories.
 
-A custom Convolutional Neural Network (CNN) was built using PyTorch and trained on a dataset containing 20,638 images.
+A custom Convolutional Neural Network (CNN) was built using PyTorch and trained on a dataset containing **20,638 images**.
 
-The best model achieved a test accuracy of **92.42%** after applying data augmentation, input normalization, and training for 10 epochs.
+The project focused on systematic model improvements using data augmentation, input normalization, Batch Normalization, and Dropout tuning.
+
+The best model achieved a test accuracy of **92.68%** using BatchNorm and Dropout(0.5).
 
 ---
 
@@ -18,9 +20,27 @@ The best model achieved a test accuracy of **92.42%** after applying data augmen
 - Training Images: 16,510
 - Testing Images: 4,128
 
+### Classes
+
+- Bell Pepper Bacterial Spot
+- Bell Pepper Healthy
+- Potato Early Blight
+- Potato Healthy
+- Potato Late Blight
+- Tomato Bacterial Spot
+- Tomato Early Blight
+- Tomato Healthy
+- Tomato Late Blight
+- Tomato Leaf Mold
+- Tomato Mosaic Virus
+- Tomato Septoria Leaf Spot
+- Tomato Spider Mites
+- Tomato Target Spot
+- Tomato Yellow Leaf Curl Virus
+
 ---
 
-## Model Architecture
+## Final CNN Architecture
 
 ```
 Input Image (3×256×256)
@@ -28,29 +48,42 @@ Input Image (3×256×256)
           ↓
 Conv2D (3 → 32)
           |
-    ReLU + MaxPool
+BatchNorm2D
+          |
+ReLU
+          |
+MaxPool
           |
           ↓
 Conv2D (32 → 64)
           |
-    ReLU + MaxPool
+BatchNorm2D
+          |
+ReLU
+          |
+MaxPool
           |
           ↓
 Conv2D (64 → 128)
           |
-    ReLU + MaxPool
+BatchNorm2D
+          |
+ReLU
+          |
+MaxPool
           |
           ↓
 Flatten
           |
-          ↓
+Dropout(0.5)
+          |
 Linear (115200 → 15)
           |
           ↓
 Disease Prediction
 ```
 
-Total Parameters: **1,821,263**
+Total Parameters: **1,821,711**
 
 ---
 
@@ -63,6 +96,7 @@ Total Parameters: **1,821,263**
 - NumPy
 - Matplotlib
 - Scikit-learn
+- Jupyter Notebook
 
 ---
 
@@ -73,17 +107,31 @@ Total Parameters: **1,821,263**
 | Baseline CNN | No augmentation, 5 epochs | 89.78% |
 | Augmented CNN | Flip + Rotation + ColorJitter, 5 epochs | 86.12% |
 | Augmented CNN | Flip + Rotation + ColorJitter, 10 epochs | 91.86% |
-| Normalized CNN ⭐ | Augmentation + Normalize + 10 epochs | **92.42%** |
+| Normalized CNN | Augmentation + Normalize | 92.42% |
+| BatchNorm CNN | BatchNorm only | 90.87% |
+| CNN V2 ⭐ | BatchNorm + Dropout(0.5) + Normalize | **92.68%** |
+| CNN V2 | BatchNorm + Dropout(0.3) + Normalize | 92.66% |
 
 ---
 
-## Data Augmentation
+## Data Preprocessing & Augmentation
 
-The following augmentations were applied to improve model generalization:
+The following preprocessing techniques were applied:
+
+### Augmentation
 
 - Random Horizontal Flip
 - Random Rotation (±20°)
 - Color Jitter (Brightness and Contrast)
+
+### Normalization
+
+```python
+transforms.Normalize(
+    [0.5, 0.5, 0.5],
+    [0.5, 0.5, 0.5]
+)
+```
 
 ---
 
@@ -92,14 +140,23 @@ The following augmentations were applied to improve model generalization:
 ```
 crop-disease-detector/
 │
-├── data/
 ├── models/
 │   ├── baseline_89_78.pth
-│   └── best_91_86.pth
+│   ├── best_91_86.pth
+│   ├── best_normalized_92_42.pth
+│   ├── batchnorm_only_90_87.pth
+│   ├── batchnorm_dropout_0_3_92_66.pth
+│   └── batchnorm_dropout_0_5_92_68.pth ⭐
+│
 ├── notebooks/
+│   ├── 01_eda.ipynb
+│   └── 02_pytorch.ipynb
+│
 ├── results/
 │   └── experiments.md
+│
 ├── requirements.txt
+├── .gitignore
 └── README.md
 ```
 
@@ -126,17 +183,23 @@ For GPU support, install the CUDA-compatible PyTorch version separately.
 
 ## Results
 
-Final Model Accuracy:
+Final Best Model Accuracy:
 
-**92.42%**
+# ⭐ 92.68%
 
-Key improvements:
+Key observations:
 
-- Overall accuracy improved from 91.86% → 92.42%
-- Class 6 improved from 63.72% → 74.03%
-- Better performance on difficult disease categories after normalization
+- Data augmentation required longer training to improve performance.
+- Input normalization improved accuracy from 91.86% → 92.42%.
+- BatchNorm alone reduced accuracy to 90.87%.
+- BatchNorm + Dropout provided the best generalization.
+- Dropout(0.5) slightly outperformed Dropout(0.3).
 
-The project demonstrates how proper experimentation with data augmentation and training strategies can significantly improve CNN performance.
+Detailed training losses, class-wise accuracy, and all experiments are available in:
+
+```
+results/experiments.md
+```
 
 ---
 
@@ -144,14 +207,20 @@ The project demonstrates how proper experimentation with data augmentation and t
 
 - baseline_89_78.pth
 - best_91_86.pth
-- best_normalized_92_42.pth ⭐
+- best_normalized_92_42.pth
+- batchnorm_only_90_87.pth
+- batchnorm_dropout_0_3_92_66.pth
+- batchnorm_dropout_0_5_92_68.pth ⭐
+
+---
 
 ## Future Improvements
 
-- Add Dropout
-- Replace the custom CNN with ResNet/EfficientNet
-- Build a Flask/FastAPI web application
-- Deploy the model to the cloud
+- Replace the large fully connected layer with Global Average Pooling (GAP)
+- Experiment with deeper CNN architectures
+- Apply Transfer Learning using ResNet/EfficientNet
+- Build a Streamlit or FastAPI web application
+- Deploy the model on Hugging Face
 
 ---
 
