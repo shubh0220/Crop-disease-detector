@@ -266,7 +266,7 @@ models/best_normalized_92_42.pth
 ```
 ---
 
-# Experiment 5: CNN with BatchNorm + Dropout(0.5) + Normalization (10 Epochs) ⭐ Best Model
+# Experiment 5: CNN with BatchNorm + Dropout(0.5) + Normalization (10 Epochs)
 
 ## Architecture Changes
 
@@ -462,17 +462,301 @@ models/batchnorm_dropout_0_3_92_66.pth
 ```
 
 ---
+---
+
+# Experiment 8: CNN V3 with Global Average Pooling (GAP)
+
+## Architecture Changes
+
+Replaced the large fully connected layer with Global Average Pooling.
+
+Old classifier:
+
+```
+Flatten
+↓
+Linear(115200 → 15)
+```
+
+New classifier:
+
+```
+Global Average Pooling
+↓
+Flatten
+↓
+Linear(128 → 15)
+```
+
+---
+
+## Motivation
+
+The goal was to reduce the large number of parameters in the final classifier while maintaining good classification performance.
+
+---
+
+## Parameter Comparison
+
+- Previous CNN: 1,821,711 parameters
+- CNN V3: 95,631 parameters
+
+Parameter reduction: **94.75%**
+
+---
+
+## Training Loss
+
+| Epoch | Loss |
+|---|---|
+| 1 | 1.378 |
+| 2 | 0.891 |
+| 3 | 0.720 |
+| 4 | 0.607 |
+| 5 | 0.531 |
+| 6 | 0.490 |
+| 7 | 0.446 |
+| 8 | 0.413 |
+| 9 | 0.386 |
+| 10 | 0.371 |
+
+---
+
+## Results
+
+Test Accuracy:
+
+**91.81%**
+
+### Observation
+
+- The model became approximately 19× smaller.
+- Accuracy dropped by only 0.87% compared to the previous best model.
+- Global Average Pooling successfully reduced overfitting and model size but removed some spatial information.
+
+---
+
+## Saved Model
+
+```
+models/cnn_v3_gap_91_81.pth
+```
+
+---
+
+# Experiment 9: CNN V4 (GAP + FC(128→64) + ReLU + Dropout)
+
+## Architecture
+
+```
+GAP
+ ↓
+FC(128 → 64)
+ ↓
+ReLU
+ ↓
+Dropout(0.3)
+ ↓
+FC(64 → 15)
+```
+
+---
+
+## Motivation
+
+Added a small hidden classifier to learn complex combinations of GAP features.
+
+---
+
+## Training Loss
+
+| Epoch | Loss |
+|---|---|
+| 1 | 1.566 |
+| 2 | 1.071 |
+| 3 | 0.911 |
+| 4 | 0.809 |
+| 5 | 0.722 |
+| 6 | 0.642 |
+| 7 | 0.598 |
+| 8 | 0.562 |
+| 9 | 0.534 |
+| 10 | 0.491 |
+
+---
+
+## Results
+
+Test Accuracy:
+
+**88.47%**
+
+### Observation
+
+- Dropout significantly reduced the performance of the small GAP model.
+- The model suffered from underfitting due to reduced capacity and strong regularization.
+
+---
+
+## Result
+
+This experiment showed that adding Dropout to a small model is not always beneficial.
+
+---
+
+# Experiment 10: CNN V4 without Dropout
+
+## Architecture
+
+```
+GAP
+ ↓
+FC(128 → 64)
+ ↓
+ReLU
+ ↓
+FC(64 → 15)
+```
+
+---
+
+## Motivation
+
+To check whether Dropout was responsible for the poor performance of Experiment 9.
+
+---
+
+## Training Loss
+
+| Epoch | Loss |
+|---|---|
+| 1 | 1.379 |
+| 2 | 0.859 |
+| 3 | 0.672 |
+| 4 | 0.558 |
+| 5 | 0.491 |
+| 6 | 0.437 |
+| 7 | 0.400 |
+| 8 | 0.370 |
+| 9 | 0.343 |
+| 10 | 0.312 |
+
+---
+
+## Results
+
+Test Accuracy:
+
+**90.99%**
+
+### Observation
+
+- Removing Dropout improved accuracy by 2.52%.
+- The model still performed worse than CNN V3, suggesting that reducing the feature dimension from 128 to 64 removed useful information.
+
+---
+
+## Saved Model
+
+```
+models/cnn_v4_gap_fc64_90_99.pth
+```
+
+---
+
+# Experiment 11: CNN V5 (GAP + FC(128→128) + ReLU + FC(128→15)) ⭐ Best Model
+
+## Architecture
+
+```
+GAP
+ ↓
+FC(128 → 128)
+ ↓
+ReLU
+ ↓
+FC(128 → 15)
+```
+
+---
+
+## Motivation
+
+Previous experiments showed that:
+- GAP was effective.
+- Compressing 128 features into 64 reduced performance.
+
+This experiment keeps the full 128-dimensional feature representation while adding a non-linear transformation.
+
+---
+
+## Parameter Count
+
+- CNN V5: 112,143 parameters
+
+Compared to the previous best CNN:
+
+- CNN V2: 1,821,711 parameters
+
+Parameter reduction: **93.84%**
+
+---
+
+## Training Loss
+
+| Epoch | Loss |
+|---|---|
+| 1 | 1.359 |
+| 2 | 0.810 |
+| 3 | 0.646 |
+| 4 | 0.544 |
+| 5 | 0.464 |
+| 6 | 0.400 |
+| 7 | 0.381 |
+| 8 | 0.344 |
+| 9 | 0.325 |
+| 10 | 0.302 |
+
+---
+
+## Results
+
+Test Accuracy:
+
+**93.41% ⭐**
+
+### Key Improvements
+
+- Achieved the highest accuracy of all experiments.
+- Reduced the model size by approximately 16× compared to CNN V2.
+- Maintained the complete 128 GAP features while allowing the network to learn better feature interactions.
+
+---
+
+## Saved Model
+
+```
+models/cnn_v5_gap_fc128_93_41.pth
+```
+
+---
+
 
 # Final Experiment Leaderboard
 
-| Rank | Model | Accuracy |
-|---|---|---|
-| 🥇 | BatchNorm + Dropout(0.5) + Normalization | **92.68%** |
-| 🥈 | BatchNorm + Dropout(0.3) + Normalization | **92.66%** |
-| 🥉 | Augmentation + Normalization | **92.42%** |
-| 4 | Augmentation (10 Epochs) | 91.86% |
-| 5 | BatchNorm Only | 90.87% |
-| 6 | Baseline CNN | 89.78% |
+| Rank | Model | Parameters | Accuracy |
+|---|---|---:|---:|
+| 🥇 | CNN V5 (GAP + FC(128→128) + ReLU + FC(128→15)) | 112,143 | **93.41%** |
+| 🥈 | BatchNorm + Dropout(0.5) + Normalization | 1,821,711 | 92.68% |
+| 🥉 | BatchNorm + Dropout(0.3) + Normalization | 1,821,711 | 92.66% |
+| 4 | Augmentation + Normalization | 1,821,263 | 92.42% |
+| 5 | Augmentation (10 Epochs) | 1,821,263 | 91.86% |
+| 6 | CNN V3 (GAP → FC(128→15)) | 95,631 | 91.81% |
+| 7 | CNN V4 (GAP → FC(128→64) → ReLU → FC(64→15)) | 102,927 | 90.99% |
+| 8 | BatchNorm Only | 1,821,711 | 90.87% |
+| 9 | Baseline CNN | 1,821,263 | 89.78% |
+| 10 | CNN V4 + Dropout (GAP → FC(128→64) → ReLU → Dropout → FC(64→15)) | 102,927 | 88.47% |
+
 
 ---
 
@@ -480,9 +764,13 @@ models/batchnorm_dropout_0_3_92_66.pth
 
 - Data augmentation initially reduced accuracy when trained for only 5 epochs.
 - Increasing the training duration to 10 epochs allowed the model to better learn from augmented images and improved the test accuracy to **91.86%**.
-- Adding input normalization further stabilized training by centering pixel values around zero, increasing the accuracy to **92.42%**.
-- Adding Batch Normalization alone did not improve the model and reduced the accuracy to **90.87%**.
-- Combining Batch Normalization with Dropout significantly improved the model's generalization ability.
-- Dropout tuning showed that **Dropout(0.5)** performed slightly better than **Dropout(0.3)**, achieving the highest test accuracy of **92.68%**.
-- The best model achieved strong performance across most disease classes, with major improvements in difficult classes such as **Class 6**, which reached **79.79%** accuracy.
-- The final best model was saved as `models/batchnorm_dropout_0_5_92_68.pth`.
+- Adding input normalization stabilized training by centering pixel values around zero, increasing the accuracy to **92.42%**.
+- Adding Batch Normalization alone did not improve performance and reduced the accuracy to **90.87%**.
+- Combining Batch Normalization with Dropout improved generalization, with **Dropout(0.5)** achieving **92.68%** accuracy and outperforming **Dropout(0.3)**.
+- Introducing Global Average Pooling (GAP) drastically reduced the model size by removing the large fully connected classifier. The pure GAP model achieved **91.81%** accuracy with only **95,631 parameters**.
+- Adding a small hidden classifier with excessive compression (**128 → 64**) reduced performance, showing that too much feature reduction can hurt classification accuracy.
+- Removing Dropout from the small GAP classifier improved accuracy from **88.47% to 90.99%**, indicating that strong regularization was unnecessary for lightweight models.
+- The final GAP architecture (**GAP → FC(128→128) → ReLU → FC(128→15)**) achieved the best balance between model capacity and efficiency, reaching the highest test accuracy of **93.41%** with only **112,143 parameters**.
+- Compared to the previous best CNN (**1.82 million parameters, 92.68% accuracy**), the final model improved accuracy by **0.73%** while reducing the number of parameters by approximately **93.8%**.
+- The final best model was saved as `models/cnn_v5_gap_fc128_93_41.pth`.
+
