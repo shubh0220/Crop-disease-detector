@@ -4,10 +4,11 @@
 
 Crop Disease Detector is a deep learning-based computer vision project that classifies crop leaf images into **15 different disease categories**.
 
-The project explores both:
+The project explores three major approaches:
 
 - **Custom CNN Architecture Design**
-- **Transfer Learning using ResNet18**
+- **CNN Optimization using GAP, BatchNorm, and Dropout**
+- **Transfer Learning using ResNet18 and EfficientNet-B0**
 
 A systematic experimentation process was followed involving:
 
@@ -17,15 +18,19 @@ A systematic experimentation process was followed involving:
 - Dropout Tuning
 - Global Average Pooling (GAP)
 - Transfer Learning
+- Architecture Comparison
 
-### Final Results
+---
+
+## 🏆 Final Results
 
 | Model | Parameters | Accuracy |
 |---------|---------:|---------:|
-| 🏆 ResNet18 Transfer Learning | 11,184,207 | **95.32%** |
-| ⚡ CNN V5 (Custom CNN) | 112,143 | **93.41%** |
+| 🥇 EfficientNet-B0 Transfer Learning | 4,026,763 | **99.39%** |
+| 🥈 ResNet18 Transfer Learning | 11,184,207 | 95.32% |
+| 🥉 CNN V5 (Custom CNN) | 112,143 | 93.41% |
 
-The project demonstrates the trade-off between **maximum accuracy** and **parameter efficiency**.
+The project demonstrates how modern transfer learning architectures can significantly outperform handcrafted CNNs while maintaining strong parameter efficiency.
 
 ---
 
@@ -57,83 +62,75 @@ The project demonstrates the trade-off between **maximum accuracy** and **parame
 
 ---
 
-# Best Custom CNN Architecture (CNN V5)
+# Best Model: EfficientNet-B0 🏆
+
+## Architecture
 
 ```text
-Input Image (3×256×256)
-          |
-          ↓
-Conv2D (3 → 32)
-          |
-BatchNorm2D
-          |
-ReLU
-          |
-MaxPool
-          |
-          ↓
-Conv2D (32 → 64)
-          |
-BatchNorm2D
-          |
-ReLU
-          |
-MaxPool
-          |
-          ↓
-Conv2D (64 → 128)
-          |
-BatchNorm2D
-          |
-ReLU
-          |
-MaxPool
-          |
-          ↓
-Feature Maps (128×30×30)
-          |
-Global Average Pooling
-          |
-Flatten
-          |
-Linear (128 → 128)
-          |
-ReLU
-          |
-Linear (128 → 15)
-          |
-          ↓
+EfficientNet-B0
+      ↓
+Dropout(0.2)
+      ↓
+Linear(1280 → 15)
+      ↓
 Disease Prediction
 ```
 
-### CNN V5 Statistics
+## Statistics
+
+- Parameters: **4,026,763**
+- Test Accuracy: **99.39%**
+- Train Accuracy: **99.68%**
+- Generalization Gap: **0.29%**
+- ImageNet Pretrained Weights
+
+---
+
+# Best Custom CNN: CNN V5 ⚡
+
+## Architecture
+
+```text
+Input Image (3×256×256)
+          ↓
+Conv2D (3 → 32)
+          ↓
+BatchNorm2D
+          ↓
+ReLU
+          ↓
+MaxPool
+          ↓
+Conv2D (32 → 64)
+          ↓
+BatchNorm2D
+          ↓
+ReLU
+          ↓
+MaxPool
+          ↓
+Conv2D (64 → 128)
+          ↓
+BatchNorm2D
+          ↓
+ReLU
+          ↓
+MaxPool
+          ↓
+Global Average Pooling
+          ↓
+Linear (128 → 128)
+          ↓
+ReLU
+          ↓
+Linear (128 → 15)
+```
+
+### Statistics
 
 - Parameters: **112,143**
 - Accuracy: **93.41%**
 - Parameter Reduction: **93.84%** compared to the original CNN
-
----
-
-# Transfer Learning (ResNet18)
-
-A pretrained ResNet18 model was fine-tuned on the crop disease dataset using ImageNet weights.
-
-### Architecture
-
-```text
-ResNet18
-    ↓
-Linear(512 → 15)
-    ↓
-Disease Prediction
-```
-
-### ResNet18 Statistics
-
-- Parameters: **11,184,207**
-- Accuracy: **95.32%**
-- Input Size: **224 × 224**
-- ImageNet Pretrained Weights
 
 ---
 
@@ -152,18 +149,19 @@ Disease Prediction
 
 # Training Experiments
 
-| Experiment | Configuration | Parameters | Accuracy |
-|---|---|---:|---:|
-| Baseline CNN | Original CNN | 1,821,263 | 89.78% |
-| Data Augmentation | Flip + Rotation + ColorJitter | 1,821,263 | 91.86% |
-| Normalization | Augmentation + Normalize | 1,821,263 | 92.42% |
-| BatchNorm Only | BatchNorm + Original FC | 1,821,711 | 90.87% |
-| CNN V2 | BatchNorm + Dropout(0.3) | 1,821,711 | 92.66% |
-| CNN V2 | BatchNorm + Dropout(0.5) | 1,821,711 | 92.68% |
-| CNN V3 | GAP → FC(128→15) | 95,631 | 91.81% |
-| CNN V4 | GAP → FC(128→64) → ReLU → FC(64→15) | 102,927 | 90.99% |
-| CNN V5 | GAP → FC(128→128) → ReLU → FC(128→15) | 112,143 | 93.41% |
-| 🏆 ResNet18 | Transfer Learning | 11,184,207 | **95.32%** |
+| Experiment | Parameters | Accuracy |
+|---|---:|---:|
+| EfficientNet-B0 Transfer Learning | 4,026,763 | **99.39%** |
+| ResNet18 Transfer Learning | 11,184,207 | 95.32% |
+| CNN V5 | 112,143 | 93.41% |
+| BatchNorm + Dropout(0.5) | 1,821,711 | 92.68% |
+| BatchNorm + Dropout(0.3) | 1,821,711 | 92.66% |
+| Augmentation + Normalize | 1,821,263 | 92.42% |
+| Augmentation (10 Epochs) | 1,821,263 | 91.86% |
+| CNN V3 | 95,631 | 91.81% |
+| CNN V4 | 102,927 | 90.99% |
+| BatchNorm Only | 1,821,711 | 90.87% |
+| Baseline CNN | 1,821,263 | 89.78% |
 
 ---
 
@@ -184,7 +182,7 @@ transforms.Normalize(
 )
 ```
 
-## ResNet18 Normalization
+## Transfer Learning Normalization
 
 ```python
 transforms.Normalize(
@@ -197,14 +195,14 @@ transforms.Normalize(
 
 # Key Findings
 
-- Data augmentation required longer training to become beneficial.
-- Input normalization improved CNN performance.
-- BatchNorm alone was not effective for the original architecture.
-- Dropout improved large fully connected classifiers.
-- Global Average Pooling reduced parameters dramatically.
-- CNN V5 achieved strong accuracy with only 112K parameters.
-- ResNet18 achieved the highest overall accuracy using transfer learning.
-- Transfer learning provided a +1.91% improvement over CNN V5.
+- Data augmentation improved model robustness when trained for sufficient epochs.
+- Input normalization stabilized training and improved performance.
+- Global Average Pooling reduced parameter count by over 93%.
+- CNN V5 achieved strong performance with only 112K parameters.
+- ResNet18 demonstrated the effectiveness of transfer learning.
+- EfficientNet-B0 achieved the highest overall accuracy.
+- EfficientNet-B0 outperformed ResNet18 by **4.07%** while using fewer parameters.
+- Train accuracy (**99.68%**) and test accuracy (**99.39%**) remained extremely close, indicating strong generalization.
 
 ---
 
@@ -216,12 +214,13 @@ crop-disease-detector/
 ├── models/
 │   ├── cnn_v5_gap_fc128_93_41.pth
 │   ├── resnet18_95_32.pth
-│   └── ...
+│   ├── efficientnet_b0_99_39.pth
 │
 ├── notebooks/
 │   ├── 01_eda.ipynb
 │   ├── 02_pytorch.ipynb
-│   └── 03_transfer_learning.ipynb
+│   ├── 03_transfer_learning.ipynb
+│   └── 04_efficientnet.ipynb
 │
 ├── results/
 │   └── experiments.md
@@ -249,25 +248,30 @@ For GPU acceleration, install the CUDA-compatible PyTorch version separately.
 
 | Model | Parameters | Accuracy |
 |---------|---------:|---------:|
-| 🏆 ResNet18 Transfer Learning | 11,184,207 | **95.32%** |
-| ⚡ CNN V5 | 112,143 | **93.41%** |
+| 🥇 EfficientNet-B0 Transfer Learning | 4,026,763 | **99.39%** |
+| 🥈 ResNet18 Transfer Learning | 11,184,207 | 95.32% |
+| 🥉 CNN V5 | 112,143 | 93.41% |
 
 ## Best Accuracy
 
-**ResNet18 Transfer Learning**
-- Accuracy: 95.32%
+**EfficientNet-B0 Transfer Learning**
+
+- Accuracy: **99.39%**
+- Parameters: **4,026,763**
 
 ## Most Efficient Model
 
 **CNN V5**
-- Accuracy: 93.41%
-- Only 112,143 parameters
+
+- Accuracy: **93.41%**
+- Parameters: **112,143**
+- Approximately **36× fewer parameters** than EfficientNet-B0
 
 ---
 
 # Future Improvements
 
-- EfficientNet Transfer Learning
+- EfficientNet-B1 / B2 Comparison
 - Learning Rate Schedulers
 - Hyperparameter Optimization
 - Streamlit/FastAPI Web Application

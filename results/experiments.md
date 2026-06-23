@@ -976,60 +976,341 @@ The experiment demonstrated the effectiveness of pretrained feature extractors f
 Accuracy: 95.32%
 Parameters: 11,184,207
 ```
+# Experiment 13: EfficientNet-B0 Transfer Learning 🏆
+
+## Objective
+
+The goal of this experiment was to evaluate a modern transfer learning architecture and compare its performance against:
+
+- Custom CNN architectures (CNN V1–V5)
+- ResNet18 Transfer Learning
+
+EfficientNet-B0 was selected because it provides an excellent balance between accuracy and parameter efficiency.
+
+---
+
+## Why EfficientNet?
+
+EfficientNet introduces compound scaling, which balances:
+
+- Network Depth
+- Network Width
+- Input Resolution
+
+Unlike traditional CNN scaling approaches, EfficientNet scales all three dimensions simultaneously, resulting in higher accuracy with fewer parameters.
+
+The model was initialized using pretrained ImageNet weights and fine-tuned for crop disease classification.
+
+---
+
+## Dataset
+
+- Total Images: 20,638
+- Classes: 15
+- Training Images: 16,510
+- Testing Images: 4,128
+
+---
+
+## Data Preprocessing
+
+### Training Transform
+
+```python
+transforms.Compose([
+    transforms.Resize((224,224)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(20),
+    transforms.ColorJitter(
+        brightness=0.2,
+        contrast=0.2
+    ),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485,0.456,0.406],
+        std=[0.229,0.224,0.225]
+    )
+])
+```
+
+### Test Transform
+
+```python
+transforms.Compose([
+    transforms.Resize((224,224)),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485,0.456,0.406],
+        std=[0.229,0.224,0.225]
+    )
+])
+```
+
+---
+
+## Proper Dataset Split
+
+A clean train/test split was created before applying transforms.
+
+### Verification
+
+```text
+Training Images: 16510
+Testing Images : 4128
+Overlap        : 0
+```
+
+This ensured that no image appeared in both the training and testing sets.
+
+---
+
+## Model Architecture
+
+### Original EfficientNet-B0
+
+```text
+EfficientNet-B0
+      ↓
+Dropout(0.2)
+      ↓
+Linear(1280 → 1000)
+```
+
+### Modified EfficientNet-B0
+
+```text
+EfficientNet-B0 Feature Extractor
+                ↓
+Dropout(0.2)
+                ↓
+Linear(1280 → 15)
+                ↓
+Disease Prediction
+```
+
+---
+
+## Parameter Count
+
+```text
+4,026,763 Parameters
+```
+
+### Comparison
+
+| Model | Parameters |
+|---------|---------:|
+| CNN V5 | 112,143 |
+| EfficientNet-B0 | 4,026,763 |
+| ResNet18 | 11,184,207 |
+
+---
+
+## Training Configuration
+
+### Optimizer
+
+```python
+Adam(lr=0.001)
+```
+
+### Loss Function
+
+```python
+CrossEntropyLoss()
+```
+
+### Batch Size
+
+```text
+32
+```
+
+### Epochs
+
+```text
+10
+```
+
+---
+
+## Training Loss
+
+| Epoch | Average Loss |
+|---------|---------:|
+| 1 | 0.2913 |
+| 2 | 0.1035 |
+| 3 | 0.0819 |
+| 4 | 0.0637 |
+| 5 | 0.0572 |
+| 6 | 0.0538 |
+| 7 | 0.0522 |
+| 8 | 0.0462 |
+| 9 | 0.0439 |
+| 10 | 0.0382 |
+
+---
+
+## Results
+
+### Training Accuracy
+
+```text
+99.68%
+```
+
+### Test Accuracy
+
+```text
+99.39%
+```
+
+### Generalization Gap
+
+```text
+99.68% - 99.39%
+= 0.29%
+```
+
+The extremely small gap indicates strong generalization and no significant evidence of overfitting.
+
+---
+
+## Class-wise Accuracy
+
+| Class | Accuracy |
+|---------|---------:|
+| 0 | 99.46% |
+| 1 | 99.64% |
+| 2 | 100.00% |
+| 3 | 98.47% |
+| 4 | 100.00% |
+| 5 | 100.00% |
+| 6 | 98.21% |
+| 7 | 99.72% |
+| 8 | 98.51% |
+| 9 | 99.72% |
+| 10 | 98.83% |
+| 11 | 99.33% |
+| 12 | 99.20% |
+| 13 | 100.00% |
+| 14 | 100.00% |
+
+---
+
+## Comparison with Previous Best Models
+
+| Model | Parameters | Accuracy |
+|---------|---------:|---------:|
+| CNN V5 | 112,143 | 93.41% |
+| ResNet18 | 11,184,207 | 95.32% |
+| EfficientNet-B0 | 4,026,763 | **99.39%** |
+
+### Improvement Over ResNet18
+
+```text
+99.39% - 95.32%
+= +4.07%
+```
+
+### Improvement Over CNN V5
+
+```text
+99.39% - 93.41%
+= +5.98%
+```
+
+---
+
+## Observations
+
+- EfficientNet-B0 achieved the highest accuracy of all experiments.
+- The model significantly outperformed ResNet18 despite using fewer parameters.
+- Class 6, previously one of the most difficult classes, improved from approximately 74–78% accuracy to over 98%.
+- Multiple classes achieved perfect classification accuracy.
+- The training and testing accuracies remained extremely close, indicating strong generalization.
+- EfficientNet demonstrated the effectiveness of modern transfer learning architectures for plant disease classification.
+
+---
+
+## Saved Model
+
+```text
+models/efficientnet_b0_99_39.pth
+```
+
+---
+
+## Conclusion
+
+EfficientNet-B0 became the best-performing model in the project.
+
+It achieved:
+
+- Highest Accuracy: **99.39%**
+- Strong Generalization
+- Fewer Parameters than ResNet18
+- Near-perfect class-wise performance
+
+This experiment established EfficientNet-B0 as the final champion architecture for the Crop Disease Detector project.
 
 # Final Experiment Leaderboard
 
 | Rank | Model | Parameters | Accuracy |
 |---|---|---:|---:|
-| 🥇 | ResNet18 Transfer Learning | 11,184,207 | **95.32%** |
-| 🥈 | CNN V5 (GAP + FC(128→128) + ReLU + FC(128→15)) | 112,143 | 93.41% |
-| 🥉 | BatchNorm + Dropout(0.5) + Normalization | 1,821,711 | 92.68% |
-| 4 | BatchNorm + Dropout(0.3) + Normalization | 1,821,711 | 92.66% |
-| 5 | Augmentation + Normalization | 1,821,263 | 92.42% |
-| 6 | Augmentation (10 Epochs) | 1,821,263 | 91.86% |
-| 7 | CNN V3 (GAP → FC(128→15)) | 95,631 | 91.81% |
-| 8 | CNN V4 (GAP → FC(128→64) → ReLU → FC(64→15)) | 102,927 | 90.99% |
-| 9 | BatchNorm Only | 1,821,711 | 90.87% |
-| 10 | Baseline CNN | 1,821,263 | 89.78% |
-| 11 | CNN V4 + Dropout (GAP → FC(128→64) → ReLU → Dropout → FC(64→15)) | 102,927 | 88.47% |
-
+| 🥇 | EfficientNet-B0 Transfer Learning | 4,026,763 | **99.39%** |
+| 🥈 | ResNet18 Transfer Learning | 11,184,207 | 95.32% |
+| 🥉 | CNN V5 (GAP + FC(128→128) + ReLU + FC(128→15)) | 112,143 | 93.41% |
+| 4 | BatchNorm + Dropout(0.5) + Normalization | 1,821,711 | 92.68% |
+| 5 | BatchNorm + Dropout(0.3) + Normalization | 1,821,711 | 92.66% |
+| 6 | Augmentation + Normalization | 1,821,263 | 92.42% |
+| 7 | Augmentation (10 Epochs) | 1,821,263 | 91.86% |
+| 8 | CNN V3 (GAP → FC(128→15)) | 95,631 | 91.81% |
+| 9 | CNN V4 (GAP → FC(128→64) → ReLU → FC(64→15)) | 102,927 | 90.99% |
+| 10 | BatchNorm Only | 1,821,711 | 90.87% |
+| 11 | Baseline CNN | 1,821,263 | 89.78% |
+| 12 | CNN V4 + Dropout | 102,927 | 88.47% |
 ---
 
 ## Best Accuracy
 
-🏆 **ResNet18 Transfer Learning**
-- Accuracy: **95.32%**
-- Parameters: **11,184,207**
+🏆 **EfficientNet-B0 Transfer Learning**
 
----
+- Accuracy: **99.39%**
+- Parameters: **4,026,763**
+- Train Accuracy: **99.68%**
+- Test Accuracy: **99.39%**
+- Generalization Gap: **0.29%**
 
 ## Most Efficient Model
 
 ⚡ **CNN V5**
+
 - Accuracy: **93.41%**
 - Parameters: **112,143**
+- ~36× fewer parameters than EfficientNet-B0
 - ~100× fewer parameters than ResNet18
-
----
-
 ## Key Takeaway
 
-Two strong models emerged from the project:
+Three strong models emerged from the project:
+
+### EfficientNet-B0
+- Highest overall accuracy
+- Strong transfer learning performance
+- Achieved 99.39% accuracy
+- Smaller than ResNet18 while performing better
 
 ### ResNet18
-- Highest accuracy
-- Benefited from ImageNet pretraining
-- Best overall performance
+- Strong transfer learning baseline
+- Achieved 95.32% accuracy
+- Demonstrated the effectiveness of pretrained ImageNet features
 
 ### CNN V5
 - Lightweight custom architecture
 - Excellent parameter efficiency
 - Achieved 93.41% accuracy with only 112K parameters
 
-The final project demonstrates both custom CNN optimization and transfer learning approaches for crop disease classification.
-
-
----
+The project successfully explored custom CNN optimization and modern transfer learning architectures for crop disease classification.
 
 ### Final Conclusion
 
@@ -1043,25 +1324,33 @@ The final project demonstrates both custom CNN optimization and transfer learnin
 - Removing Dropout from the small GAP classifier improved accuracy from **88.47% to 90.99%**, indicating that strong regularization was unnecessary for lightweight models.
 - The final GAP architecture (**GAP → FC(128→128) → ReLU → FC(128→15)**) achieved the best balance between model capacity and efficiency, reaching **93.41%** accuracy with only **112,143 parameters**.
 - Compared to the previous best CNN (**1.82 million parameters, 92.68% accuracy**), CNN V5 improved accuracy by **0.73%** while reducing the number of parameters by approximately **93.8%**.
-- Transfer learning using **ResNet18 pretrained on ImageNet** achieved the highest overall performance in the project.
-- ResNet18 reached **95.32%** test accuracy, outperforming CNN V5 by **1.91%**.
-- The pretrained ResNet18 converged significantly faster than the custom CNN and achieved near-perfect accuracy on several disease classes.
-- Despite its superior accuracy, ResNet18 required **11.18 million parameters**, approximately **100× more parameters** than CNN V5.
-- The project demonstrated two successful approaches:
-  - **ResNet18** for maximum accuracy (**95.32%**)
+- Transfer learning using **ResNet18 pretrained on ImageNet** significantly improved performance and achieved **95.32%** test accuracy.
+- ResNet18 outperformed CNN V5 by **1.91%**, demonstrating the power of pretrained feature extraction.
+- EfficientNet-B0 Transfer Learning achieved the highest overall performance in the project.
+- EfficientNet-B0 reached **99.39%** test accuracy while using only **4.03 million parameters**.
+- The model outperformed ResNet18 by **4.07%** while using approximately **64% fewer parameters**.
+- Training accuracy (**99.68%**) and test accuracy (**99.39%**) remained extremely close, resulting in a generalization gap of only **0.29%**.
+- Several disease classes achieved **100% classification accuracy**, and previously difficult classes improved dramatically.
+- The project demonstrated three successful approaches:
+  - **EfficientNet-B0** for maximum accuracy (**99.39%**)
+  - **ResNet18** as a strong transfer learning baseline (**95.32%**)
   - **CNN V5** for maximum efficiency (**93.41% with only 112,143 parameters**)
 - The final best-performing model was saved as:
 
 ```text
-models/resnet18_95_32.pth
+models/efficientnet_b0_99_39.pth
+```
+
+The project successfully explored custom CNN optimization, architecture design, and transfer learning techniques for crop disease classification.
+
+Among all experiments, EfficientNet-B0 achieved the best overall performance, demonstrating how modern pretrained architectures can significantly outperform handcrafted CNNs while maintaining strong parameter efficiency.
 ```
 
 ### Final Results
 
 | Model | Parameters | Accuracy |
 |---------|---------:|---------:|
-| ResNet18 Transfer Learning | 11,184,207 | **95.32%** |
+| EfficientNet-B0 Transfer Learning | 4,026,763 | **99.39%** |
+| ResNet18 Transfer Learning | 11,184,207 | 95.32% |
 | CNN V5 | 112,143 | 93.41% |
-
-The project successfully explored both custom CNN optimization and transfer learning techniques for crop disease classification, demonstrating the trade-off between model efficiency and maximum predictive performance.
 
