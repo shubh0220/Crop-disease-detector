@@ -740,7 +740,7 @@ models/cnn_v5_gap_fc128_93_41.pth
 ```
 
 ---
-# Experiment 12: Transfer Learning with ResNet18 ⭐ Best Model
+# Experiment 12: Transfer Learning with ResNet18
 
 ## Objective
 
@@ -976,7 +976,7 @@ The experiment demonstrated the effectiveness of pretrained feature extractors f
 Accuracy: 95.32%
 Parameters: 11,184,207
 ```
-# Experiment 13: EfficientNet-B0 Transfer Learning 🏆
+# Experiment 13: EfficientNet-B0 Transfer Learning 🏆Best Model
 
 ## Objective
 
