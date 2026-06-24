@@ -5,6 +5,13 @@ import torch.nn as nn
 from torchvision import models, transforms, datasets
 from PIL import Image
 st.title("🌱 Crop Disease Detector")
+st.markdown("""Detect crop diseases using a deep learning model trained on
+20,638 crop leaf images across 15 disease categories.""")
+st.sidebar.header("Model Information")
+
+st.sidebar.write("Model : EfficientNet-B0")
+st.sidebar.write("Accuracy : 99.39%")
+st.sidebar.write("Classes : 15")
 uploaded_file = st.file_uploader(
     "Upload a Leaf Image",
     type=["jpg","jpeg","png"]
@@ -40,19 +47,10 @@ test_transform = transforms.Compose([
         std=[0.229,0.224,0.225]
     )
 ])
-def predict_image(image):
-    image_tensor = test_transform(image.convert("RGB")).unsqueeze(0).to(device)
-    with torch.no_grad():
-        outputs = model(image_tensor)
-        proba = torch.softmax(outputs,dim=1)
-        top_proba , top_indices = torch.topk(proba,k=3)
-        results = []
-        for i in range(3):
-            disease = class_names[top_indices[0][i].item()]
-            confidence = (top_proba[0][i].item()*100)
-            results.append((disease,confidence))
-        return results
-
+from utils import (
+    predict_image,
+    format_name
+)
 if uploaded_file is not None:
 
     st.image(
@@ -64,9 +62,11 @@ if uploaded_file is not None:
     if st.button("Predict"):
 
         image = Image.open(uploaded_file)
-        results = predict_image(image)
-        st.success( "Prediction Complete")
+        results = predict_image(image,model,device,test_transform,class_names)
+        st.success( f"Most Likely Disease : {format_name(results[0][0])} ")
         st.subheader("Top 3 Predictions")
 
         for i, (disease, confidence) in enumerate(results):
-            st.write(f"{i+1}. {disease} : {confidence:.4f}%")
+            st.write(f"### {i+1}. {format_name(disease)}")
+            st.progress(min(confidence / 100,1.0))
+            st.write(f"Confidence: {confidence:.4f}")

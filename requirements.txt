@@ -1,3 +1,4 @@
+streamlit
 torch
 torchvision
 torchaudio
@@ -7,4 +8,3 @@ matplotlib
 scikit-learn
 
 pillow
-jupyter
