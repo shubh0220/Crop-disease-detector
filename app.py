@@ -16,8 +16,23 @@ uploaded_file = st.file_uploader(
     "Upload a Leaf Image",
     type=["jpg","jpeg","png"]
 )
-dataset = datasets.ImageFolder("data/raw")
-class_names = dataset.classes
+class_names = [
+    "Pepper__bell___Bacterial_spot",
+    "Pepper__bell___healthy",
+    "Potato___Early_blight",
+    "Potato___healthy",
+    "Potato___Late_blight",
+    "Tomato_Bacterial_spot",
+    "Tomato_Early_blight",
+    "Tomato_healthy",
+    "Tomato_Late_blight",
+    "Tomato_Leaf_Mold",
+    "Tomato_Septoria_leaf_spot",
+    "Tomato_Spider_mites_Two_spotted_spider_mite",
+    "Tomato__Target_Spot",
+    "Tomato__Tomato_mosaic_virus",
+    "Tomato__Tomato_YellowLeaf__Curl_Virus"
+]
 
 device = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"
